@@ -2,7 +2,7 @@ import JSZip from "jszip";
 import { ResourceHandler } from "../resources.type";
 import { assertReturn } from "../utils/inlines";
 import { getFromProxy, getProxiedUrl } from "../proxy";
-import { array, assert, enums, number, object, string, type } from "superstruct";
+import { Infer, array, assert, enums, number, object, string, type } from "superstruct";
 
 export const MetadataResponseSchema = type({
   status: string(),
@@ -26,7 +26,6 @@ export default class ComicEarthstarHandler implements ResourceHandler {
   states: { name: string; percentage: number; }[];
   currentStateIndex: number
   zipFile: JSZip;
-  pagesComplete: number;
 
   constructor(url: string) {
     this.url = new URL(url)
@@ -42,7 +41,6 @@ export default class ComicEarthstarHandler implements ResourceHandler {
     this.currentStateIndex = 0
 
     this.zipFile = new JSZip()
-    this.pagesComplete = 0
   }
 
   async execute(): Promise<JSZip> {
@@ -59,11 +57,12 @@ export default class ComicEarthstarHandler implements ResourceHandler {
     assert(configPack, ConfigurationPackSchema)
 
     const totalPages = configPack.configuration.contents.length
+    let pagesComplete = 0
 
     this.states[this.currentStateIndex].percentage = 1
     this.currentStateIndex += 1
 
-    configPack.configuration.contents.forEach(async (page, index) => {
+    const process = async (page: typeof configPack.configuration.contents[0], index: number) => {
       const img = new Image()
       img.crossOrigin = 'Anonymous'
       img.src = getProxiedUrl(baseUrl + page.file + '/0.jpeg')
@@ -89,18 +88,12 @@ export default class ComicEarthstarHandler implements ResourceHandler {
       canvas.height = 1
       ctx.clearRect(0, 0, 1, 1)
 
-      this.pagesComplete += 1
-      this.states[this.currentStateIndex].percentage = this.pagesComplete / totalPages
-    })
+      this.states[this.currentStateIndex].percentage = pagesComplete / totalPages
+    }
 
-    return new Promise<JSZip>((resolve, reject) => {
-      const timer = setInterval(() => {
-        if (this.pagesComplete === totalPages) {
-          clearInterval(timer)
-          resolve(this.zipFile)
-        }
-      }, 500)
-    })
+    await Promise.all(configPack.configuration.contents.map((page, index) => process(page, index)))
+
+    return this.zipFile
   }
 
   getDescramblingCoords(fileNameOnConfigPack: string, size: [number, number]) {

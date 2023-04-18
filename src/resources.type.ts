@@ -8,7 +8,6 @@ export interface ResourceHandler {
   }[]
   currentStateIndex: number
   zipFile: JSZip
-  pagesComplete: number
 
   execute(): Promise<JSZip>
 }

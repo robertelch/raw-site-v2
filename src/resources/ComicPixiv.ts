@@ -25,7 +25,6 @@ export default class ComicPixivHandler implements ResourceHandler {
   states: { name: string; percentage: number; }[];
   currentStateIndex: number;
   zipFile: JSZip;
-  pagesComplete: number;
 
   constructor(url: string) {
     this.url = new URL(url)
@@ -41,7 +40,6 @@ export default class ComicPixivHandler implements ResourceHandler {
     this.currentStateIndex = 0
 
     this.zipFile = new JSZip()
-    this.pagesComplete = 0
   }
 
   async execute(): Promise<JSZip> {
@@ -66,27 +64,23 @@ export default class ComicPixivHandler implements ResourceHandler {
     assert(data, ChapterDataSchema)
 
     const totalPages = data.data.reading_episode.pages.length
+    let pagesComplete = 0
 
     this.states[this.currentStateIndex].percentage = 1
     this.currentStateIndex += 1
 
-    data.data.reading_episode.pages.forEach(async (page, index) => {
+    const process = async (page: typeof data.data.reading_episode.pages[0], index: number) => {
       const resp = await getFromProxy(page.url, { referer: this.url.href })
       const buffer = await resp.arrayBuffer()
 
       this.zipFile.file(`${(index + 1).toString().padStart(3, '0')}.jpg`, buffer)
 
-      this.pagesComplete += 1
-      this.states[this.currentStateIndex].percentage = this.pagesComplete / totalPages
-    })
+      pagesComplete += 1
+      this.states[this.currentStateIndex].percentage = pagesComplete / totalPages
+    }
 
-    return new Promise<JSZip>((resolve, reject) => {
-      const timer = setInterval(() => {
-        if (this.pagesComplete === totalPages) {
-          clearInterval(timer)
-          resolve(this.zipFile)
-        }
-      }, 500)
-    })
+    await Promise.all(data.data.reading_episode.pages.map((page, index) => process(page, index)))
+
+    return this.zipFile
   }
 }

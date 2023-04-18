@@ -10,7 +10,6 @@ export default class YauWntHandler implements ResourceHandler {
   states: { name: string; percentage: number }[]
   currentStateIndex: number
   zipFile: JSZip
-  pagesComplete: number
 
   constructor(url: string) {
     this.url = new URL(url)
@@ -22,7 +21,6 @@ export default class YauWntHandler implements ResourceHandler {
     this.currentStateIndex = 0
 
     this.zipFile = new JSZip()
-    this.pagesComplete = 0
   }
 
   async execute() {
@@ -32,27 +30,23 @@ export default class YauWntHandler implements ResourceHandler {
     assert(pages, PagesSchema)
 
     const totalPages = pages.length
+    let pagesComplete = 0
 
     this.states[this.currentStateIndex].percentage = 1
     this.currentStateIndex += 1
 
-    pages.forEach(async (page, index) => {
+    const process = async (page: typeof pages[0], index: number) => {
       const resp = await getFromProxy(`https://${this.url.hostname}/${page}`)
       const buffer = await resp.arrayBuffer()
 
       this.zipFile.file(`${(index + 1).toString().padStart(3, '0')}.jpg`, buffer)
 
-      this.pagesComplete += 1
-      this.states[this.currentStateIndex].percentage = this.pagesComplete / totalPages
-    })
+      pagesComplete += 1
+      this.states[this.currentStateIndex].percentage = pagesComplete / totalPages
+    }
 
-    return new Promise<JSZip>((resolve, reject) => {
-      const timer = setInterval(() => {
-        if (this.pagesComplete === totalPages) {
-          clearInterval(timer)
-          resolve(this.zipFile)
-        }
-      }, 500)
-    })
+    await Promise.all(pages.map(async (page, index) => process(page, index)))
+
+    return this.zipFile
   }
 }

@@ -19,7 +19,6 @@ export default class FireCrossHandler implements ResourceHandler {
   states: { name: string; percentage: number; }[];
   currentStateIndex: number;
   zipFile: JSZip;
-  pagesComplete: number;
 
   constructor(url: string) {
     this.url = new URL(url)
@@ -35,7 +34,6 @@ export default class FireCrossHandler implements ResourceHandler {
     this.currentStateIndex = 0
 
     this.zipFile = new JSZip()
-    this.pagesComplete = 0
   }
 
   async execute(): Promise<JSZip> {
@@ -64,11 +62,12 @@ export default class FireCrossHandler implements ResourceHandler {
     assert(infoBody, InfoBodySchema)
 
     const totalPages = infoBody.pages.length
+    let pagesComplete = 0
 
     this.states[this.currentStateIndex].percentage = 1
     this.currentStateIndex += 1
 
-    infoBody.pages.forEach(async (_, index) => {
+    const process = async (index: number) => {
       const imgUrl = new URL('https://firecross.jp/celsys/diazepam_hybrid.php')
       imgUrl.searchParams.append('mode', '1');
       imgUrl.searchParams.append('file', `${index}`.padStart(4, '0') + '_0000.bin')
@@ -126,18 +125,13 @@ export default class FireCrossHandler implements ResourceHandler {
       canvas.height = 1
       ctx.clearRect(0, 0, 1, 1)
 
-      this.pagesComplete += 1
-      this.states[this.currentStateIndex].percentage = this.pagesComplete / totalPages
-    })
+      pagesComplete += 1
+      this.states[this.currentStateIndex].percentage = pagesComplete / totalPages
+    }
 
-    return new Promise<JSZip>((resolve, reject) => {
-      const timer = setInterval(() => {
-        if (this.pagesComplete === totalPages) {
-          clearInterval(timer)
-          resolve(this.zipFile)
-        }
-      }, 500)
-    })
+    await Promise.all(infoBody.pages.map((_, index) => process(index)))
+
+    return this.zipFile
   }
 
   getCoordsFromScramble(scramble: string, size: [number, number]) {

@@ -20,7 +20,6 @@ export default class GigaViewHandler implements ResourceHandler {
   states: { name: string; percentage: number; }[];
   currentStateIndex: number;
   zipFile: JSZip;
-  pagesComplete: number;
 
   constructor(url: string) {
     this.url = new URL(url)
@@ -32,7 +31,6 @@ export default class GigaViewHandler implements ResourceHandler {
     this.currentStateIndex = 0
 
     this.zipFile = new JSZip()
-    this.pagesComplete = 0
   }
 
   async execute(): Promise<JSZip> {
@@ -44,27 +42,23 @@ export default class GigaViewHandler implements ResourceHandler {
     assert(body, ChapterDataSchema)
 
     const totalPages = body.readableProduct.pageStructure.pages.filter(page => page.type === 'main').length
+    let pagesComplete = 0
 
     this.states[this.currentStateIndex].percentage = 1
     this.currentStateIndex += 1
 
-    body.readableProduct.pageStructure.pages.filter(page => page.type === 'main').forEach(async (page, index) => {
+    const process = async (page: typeof body.readableProduct.pageStructure.pages[0], index: number) => {
       const resp = await getFromProxy(page.src!)
       const buffer = await resp.arrayBuffer()
 
       this.zipFile.file(`${(index + 1).toString().padStart(3, '0')}.jpg`, buffer)
 
-      this.pagesComplete += 1
-      this.states[this.currentStateIndex].percentage = this.pagesComplete / totalPages
-    })
+      pagesComplete += 1
+      this.states[this.currentStateIndex].percentage = pagesComplete / totalPages
+    }
 
-    return new Promise<JSZip>((resolve, reject) => {
-      const timer = setInterval(() => {
-        if (this.pagesComplete === totalPages) {
-          clearInterval(timer)
-          resolve(this.zipFile)
-        }
-      }, 500)
-    })
+    await Promise.all(body.readableProduct.pageStructure.pages.filter(page => page.type === 'main').map((page, index) => process(page, index)))
+
+    return this.zipFile
   }
 }
