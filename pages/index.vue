@@ -17,7 +17,7 @@
         "
         placeholder="Input a link."
       />
-      <div class="absolute right-[0.65rem] top-[0.60rem]">
+      <div class="absolute right-2 top-0 flex flex-col justify-center h-14">
         <Button
           class="flex space-x-2 rounded-full px-4" @buttonClick="start"
           :class="{
