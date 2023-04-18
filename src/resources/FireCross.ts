@@ -94,15 +94,15 @@ export default class FireCrossHandler implements ResourceHandler {
 
       const scramble = assertReturn(
         infoXml.getElementsByTagName('Scramble')[0].innerHTML,
-        `Could not get scramble table from page ${index + 1}`
+        `Could not get scramble table of page ${index + 1}`
       )
       const width = assertReturn(
         infoXml.getElementsByTagName('Width')[0].innerHTML,
-        `Could not get scramble table from page ${index + 1}`
+        `Could not get width of page ${index + 1}`
       )
       const height = assertReturn(
         infoXml.getElementsByTagName('Height')[0].innerHTML,
-        `Could not get scramble table from page ${index + 1}`
+        `Could not get height of page ${index + 1}`
       )
 
       const coords = this.getCoordsFromScramble(scramble, [parseInt(width), parseInt(height)])
