@@ -50,7 +50,7 @@ export default class ComicPixivHandler implements ResourceHandler {
     const hash = crypto.MD5(preHashString).toString(crypto.enc.Hex)
 
     const resp = await getFromProxy(
-      `https://comic.pixiv.net/api/app/episodes/${this.id}/read_v2`,
+      `https://comic.pixiv.net/api/app/episodes/${this.id}/read`,
       {
         referer: this.url.href,
         'x-requested-with': 'pixivcomic',
