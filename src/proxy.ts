@@ -69,6 +69,6 @@ export function getProxiedUrl(url: string, headers: object = {}) {
 }
 
 export function setProxyUrl(url: string) {
-  if (url.at(-1) === '/') url = url.slice(1, -1)
+  if (url.at(-1) === '/') url = url.slice(0, -1)
   proxyUrl = url
 }
