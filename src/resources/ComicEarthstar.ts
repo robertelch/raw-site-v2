@@ -88,6 +88,7 @@ export default class ComicEarthstarHandler implements ResourceHandler {
       canvas.height = 1
       ctx.clearRect(0, 0, 1, 1)
 
+      pagesComplete += 1
       this.states[this.currentStateIndex].percentage = pagesComplete / totalPages
     }
 

@@ -38,6 +38,8 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    urlToProxy.searchParams.delete('headers[]')
+
     const stream = await axios(urlToProxy.href, { responseType: 'stream', headers })
 
     return sendStream(event, stream.data)

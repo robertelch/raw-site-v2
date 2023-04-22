@@ -70,7 +70,10 @@ export default class ComicPixivHandler implements ResourceHandler {
     this.currentStateIndex += 1
 
     const process = async (page: typeof data.data.reading_episode.pages[0], index: number) => {
-      const resp = await getFromProxy(page.url, { referer: this.url.href })
+      const originalUrl = new URL(page.url)
+      const reformedUrl = new URL(`https://${originalUrl.hostname}/${originalUrl.href.slice(originalUrl.href.indexOf('images'))}`)
+
+      const resp = await getFromProxy(reformedUrl.href, { referer: this.url.href })
       const buffer = await resp.arrayBuffer()
 
       this.zipFile.file(`${(index + 1).toString().padStart(3, '0')}.jpg`, buffer)
