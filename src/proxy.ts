@@ -3,6 +3,8 @@ import { enums } from "superstruct"
 export const ValidProxiedHosts = enums([
   'comic-walker.com',
   'comicwalker-api.nicomanga.jp',
+  'www.comicride.jp',
+  'michikusacomics.jp',
   'drm.cdn.nicomanga.jp',
   'deliver.cdn.nicomanga.jp',
   'comic.webnewtype.com',

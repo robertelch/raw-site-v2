@@ -27,7 +27,7 @@ export default class SpeedBinbHandler implements ResourceHandler {
   zipFile: JSZip;
 
   constructor(url: string) {
-    this.url = new URL(url)
+    this.url = new URL(url.replace('/index.html', ''))
 
     this.states = [
       { name: 'Getting API data.', percentage: 0 },
