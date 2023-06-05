@@ -16,11 +16,11 @@ export default defineEventHandler(async (event) => {
       throw new Error('Invalid URL.')
     }
 
-    const urlToProxy = new URL(decodeURIComponent(assertReturn(
+    const urlToProxy = new URL(assertReturn(
       urlOnQuery,
       'Invalid URL.',
       () => statusCode = 400
-    )))
+    ))
 
     if (!is(urlToProxy.hostname, ValidProxiedHosts)) {
       statusCode = 400
