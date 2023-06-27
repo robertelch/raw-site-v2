@@ -10,6 +10,7 @@ import GigaViewHandler from "~/src/resources/GigaView";
 import SpeedBinbHandler from "~/src/resources/SpeedBinb";
 import YanMangaHandler from "~/src/resources/YanManga";
 import YauWntHandler from "~/src/resources/YauWnt";
+import ComiciHandler from "~/src/resources/Comici";
 import { assertReturn } from "~/src/utils/inlines";
 
 export async function downloadZipFile(zipFile: JSZip) {
@@ -67,6 +68,7 @@ hostMap.set('www.123hon.com', SpeedBinbHandler)
 hostMap.set('www.comic-brise.com', SpeedBinbHandler)
 hostMap.set('www.sunday-webry.com', GigaViewHandler)
 hostMap.set('yanmaga.jp', YanMangaHandler)
+hostMap.set('youngchampion.jp', ComiciHandler)
 
 export function mapUrlToHandler(url: string): typeof GigaViewHandler {
   const host = new URL(url).hostname
