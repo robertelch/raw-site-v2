@@ -59,6 +59,7 @@ export const ValidProxiedHosts = enums([
 ])
 
 let proxyUrl = ''
+let cookieString = ''
 
 export async function getFromProxy(url: string, headers: object = {}) {
   return fetch(getProxiedUrl(url, headers))
@@ -71,10 +72,16 @@ export function getProxiedUrl(url: string, headers: object = {}) {
     finalUrl.searchParams.append('headers[]', `${key}|${value}`)
   })
 
+  finalUrl.searchParams.append('headers[]', `cookie|${cookieString}`)
+
   return `${proxyUrl}/proxy?url=${encodeURIComponent(finalUrl.href)}`
 }
 
 export function setProxyUrl(url: string) {
   if (url.at(-1) === '/') url = url.slice(0, -1)
   proxyUrl = url
+}
+
+export function setCookieString(cookie: string) {
+  cookieString = cookie
 }

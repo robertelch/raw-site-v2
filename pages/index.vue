@@ -101,6 +101,14 @@
         Alex's Raw Downloader
       </h1>
       <div class="flex sm:space-x-2 text-white">
+        <Button class="rounded-full sm:rounded-md" type="secondary" @buttonClick="showCookieModal = true">
+          <div class="flex space-x-2">
+            <IconCookie />
+            <span class="hidden sm:inline my-auto rounded-md">
+              Cookies
+            </span>
+          </div>
+        </Button>
         <Button class="rounded-full sm:rounded-md" type="secondary" @buttonClick="showCustomProxyModal = true">
           <div class="flex space-x-2">
             <IconPlug />
@@ -153,13 +161,14 @@
   </div>
   <ProxyModal v-model="showCustomProxyModal" />
   <InfoModal v-model="showInfoModal" />
+  <CookieModal v-model="showCookieModal" />
 </template>
 
 <script setup lang="ts">
 import { ResourceHandler } from "~/src/resources.type"
 import { Background } from "~/server/routes/background"
 
-import { IconX, IconArrowRight, IconDownload, IconCheck, IconPlug, IconExternalLink, IconInfoCircle } from "@tabler/icons-vue"
+import { IconX, IconArrowRight, IconDownload, IconCheck, IconPlug, IconExternalLink, IconInfoCircle, IconCookie } from "@tabler/icons-vue"
 import SwitchBtn from "~/components/SwitchBtn.vue";
 import JSZip from "jszip";
 
@@ -174,6 +183,7 @@ const zipFile = ref<JSZip>()
 
 const showCustomProxyModal = ref(false)
 const showInfoModal = ref(false)
+const showCookieModal = ref(false)
 
 function resetState () {
   showDetails.value = false
