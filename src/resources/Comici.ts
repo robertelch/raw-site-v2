@@ -46,6 +46,8 @@ export default class ComiciHandler implements ResourceHandler {
   }
 
   async execute(): Promise<JSZip> {
+    const base = this.url.hostname
+
     const viewerId = await (async () => {
       const resp = await getFromProxy(this.url.href)
       const html = await resp.text()
@@ -60,7 +62,7 @@ export default class ComiciHandler implements ResourceHandler {
     })()
 
     const totalPages = await (async () => {
-      const resp = await getFromProxy(`https://youngchampion.jp/book/episodeInfo?comici-viewer-id=${viewerId}&isPreview=false`, {
+      const resp = await getFromProxy(`https://${base}/book/episodeInfo?comici-viewer-id=${viewerId}&isPreview=false`, {
         referer: this.url.href
       })
       const body = await resp.json()
@@ -76,7 +78,7 @@ export default class ComiciHandler implements ResourceHandler {
     let pagesComplete = 0
 
     const pages = await (async () => {
-      const resp = await getFromProxy(`https://youngchampion.jp/book/contentsInfo?user-id=0&comici-viewer-id=${viewerId}&page-from=0&page-to=${totalPages}`, {
+      const resp = await getFromProxy(`https://${base}/book/contentsInfo?user-id=0&comici-viewer-id=${viewerId}&page-from=0&page-to=${totalPages}`, {
         referer: this.url.href
       })
       const body = await resp.json()
