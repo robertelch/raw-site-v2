@@ -44,7 +44,7 @@ export default class FireCrossHandler implements ResourceHandler {
 
     const doc = parser.parseFromString(html, 'text/html')
 
-    const param = assertReturn(
+    const param = this.url.searchParams.get('param') || assertReturn(
       doc.querySelector('input[name="param"]')?.getAttribute('value') ?? undefined,
       'Could not find param in the parsed HTML.'
     )
@@ -105,7 +105,13 @@ export default class FireCrossHandler implements ResourceHandler {
         `Could not get height of page ${index + 1}`
       )
 
-      const coords = this.getCoordsFromScramble(scramble, [parseInt(width), parseInt(height)])
+      const chunkWidth = 8 * Math.floor(Math.floor(parseInt(width) / 4) / 8)
+      const chunkHeight = 8 * Math.floor(Math.floor(parseInt(height) / 4) / 8)
+
+      const rightPadding = parseInt(width) - chunkWidth * 4
+      const bottomPadding = parseInt(height) - chunkHeight * 4
+
+      const coords = this.getCoordsFromScramble(scramble, [chunkWidth * 4, chunkHeight * 4])
 
       const canvas = document.createElement('canvas')
       canvas.width = img.width
@@ -114,6 +120,10 @@ export default class FireCrossHandler implements ResourceHandler {
         canvas.getContext('2d') ?? undefined,
         `Could not get canvas context for page ${index + 1}`
       )
+
+      // Ignore right and bottom padding of image
+      ctx.drawImage(img, parseInt(width) - rightPadding, 0, rightPadding, parseInt(height), parseInt(width) - rightPadding, 0, rightPadding, parseInt(height))
+      ctx.drawImage(img, 0, parseInt(height) - bottomPadding, parseInt(width), bottomPadding, 0, parseInt(height) - bottomPadding, parseInt(width), bottomPadding)
 
       coords.forEach(coord => {
         ctx.drawImage(img, coord.srcX, coord.srcY, coord.width, coord.height, coord.destX, coord.destY, coord.width, coord.height);
@@ -145,8 +155,8 @@ export default class FireCrossHandler implements ResourceHandler {
       destX = i % 4;
       destY = Math.floor(i / 4);
 
-      chunk_width = Math.floor(size[0] / 4) - 2;
-      chunk_height = Math.floor(size[1] / 4) - 3;
+      chunk_width = Math.floor(size[0] / 4);
+      chunk_height = Math.floor(size[1] / 4);
 
       coords.push({
         srcX: srcX * chunk_width,
