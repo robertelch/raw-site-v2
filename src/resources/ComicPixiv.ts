@@ -47,10 +47,10 @@ export default class ComicPixivHandler implements ResourceHandler {
     date.setMilliseconds(0)
     const isoDate = date.toISOString().replace(/\.000Z/, 'Z')
     const preHashString = isoDate + 'mAtW1X8SzGS880fsjEXlM73QpS1i4kUMBhyhdaYySk8nWz533nrEunaSplg63fzT'
-    const hash = crypto.MD5(preHashString).toString(crypto.enc.Hex)
+    const hash = crypto.SHA256(preHashString).toString(crypto.enc.Hex)
 
     const resp = await getFromProxy(
-      `https://comic.pixiv.net/api/app/episodes/${this.id}/read`,
+      `https://comic.pixiv.net/api/app/episodes/${this.id}/read_v3`,
       {
         referer: this.url.href,
         'x-requested-with': 'pixivcomic',
