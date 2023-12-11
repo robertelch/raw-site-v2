@@ -57,7 +57,9 @@ export const ValidProxiedHosts = enums([
   'bigcomics.jp',
   'viewer.bigcomics.jp',
   'younganimal.com',
-  'viewer.younganimal.com'
+  'viewer.younganimal.com',
+  'comics.manga-bang.com',
+  'comicsviewer.manga-bang.com'
 ])
 
 let proxyUrl = ''
