@@ -30,6 +30,8 @@ export default class YanMangaHandler implements ResourceHandler {
   zipFile: JSZip;
 
   constructor(url: string) {
+    throw new Error('This handler not supported right now, it will be updated in the future.')
+
     this.url = new URL(url)
     this.id = assertReturn(
       this.url.pathname.split('/').at(-1),
