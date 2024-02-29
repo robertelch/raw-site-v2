@@ -1,24 +1,47 @@
-import { array, assert, nullable, number, object, partial, string, type } from "superstruct"
+import { any, array, assert, enums, nullable, number, object, string, type, union } from "superstruct"
 import { getFromProxy } from "../proxy"
 import { assertReturn } from "../utils/inlines"
 import JSZip from "jszip"
 import { ResourceHandler } from "../resources.type"
 
-export const FramesPartialSchema = type({
-  data: object({
-    result: array(object({
-      id: number(),
-      meta: type({
-        source_url: string(),
-        drm_hash: nullable(string())
+const UrlIdRegex = /^https:\/\/comic-walker\.com\/detail\/(KC_.*)\/episodes\/(KC_.*)/
+
+export const ContentsPartialSchema = type({
+  manuscripts: array(object({
+    drmMode: enums(['xor']),
+    drmHash: string(),
+    drmImageUrl: string(),
+    page: number()
+  }))
+})
+
+export const NextDataPartialSchema = type({
+  props: type({
+    pageProps: type({
+      dehydratedState: type({
+        queries: array(type({
+          state: type({
+            data: union([
+              any(),
+              type({
+                episode: type({
+                  id: string()
+                })
+              })
+            ]),
+          }),
+          queryKey: array(union([string(), object()])),
+          queryHash: string()
+        }))
       })
-    }))
+    })
   })
 })
 
 export default class CommicWalkerHandler implements ResourceHandler {
   url: URL
-  id: string
+  episodeCode: string
+  workCode: string
   states: { name: string; percentage: number }[]
   currentStateIndex: number
   zipFile: JSZip
@@ -26,8 +49,13 @@ export default class CommicWalkerHandler implements ResourceHandler {
   constructor(url: string) {
     this.url = new URL(url)
 
-    this.id = assertReturn(
-      this.url.searchParams.get('cid') || undefined,
+    this.workCode = assertReturn(
+      this.url.href.match(UrlIdRegex)?.[1],
+      'Could not find id in the URL.'
+    )
+
+    this.episodeCode = assertReturn(
+      this.url.href.match(UrlIdRegex)?.[2],
       'Could not find id in the URL.'
     )
 
@@ -41,13 +69,34 @@ export default class CommicWalkerHandler implements ResourceHandler {
   }
 
   async execute() {
-    const resp = await getFromProxy(`https://comicwalker-api.nicomanga.jp/api/v1/comicwalker/episodes/${this.id}/frames`)
-    const frames = await resp.json()
+    const htmlResp = await getFromProxy(this.url.href, {
+      'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+    }).then(resp => resp.text())
+    const domParser = new DOMParser()
+    const parsedHtml = domParser.parseFromString(htmlResp, 'text/html')
 
-    assert(frames, FramesPartialSchema)
+    const nextData = assertReturn(
+      parsedHtml.querySelector('#__NEXT_DATA__')?.textContent ?? undefined,
+      'Could not find site next data.'
+    )
+
+    const nextDataJson = JSON.parse(nextData)
+    assert(nextDataJson, NextDataPartialSchema)
+
+    const episodeId = assertReturn<string>(
+      nextDataJson.props.pageProps.dehydratedState.queries.find(query => "episode" in query.state.data)?.state.data.episode.id,
+      'Could not get episode id.'
+    )
+
+    const resp = await getFromProxy(`https://comic-walker.com/api/contents/viewer?episodeId=${episodeId}&imageSizeType=width%3A1284`, {
+      'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+    })
+    const contents = await resp.json()
+
+    assert(contents, ContentsPartialSchema)
 
     const totalPages = assertReturn(
-      frames.data?.result.length,
+      contents.manuscripts.length,
       'Could not get the total amount of pages.'
     )
     let pagesComplete = 0
@@ -55,14 +104,14 @@ export default class CommicWalkerHandler implements ResourceHandler {
     this.states[this.currentStateIndex].percentage = 1
     this.currentStateIndex += 1
 
-    const process = async (page: typeof frames.data.result[0], index: number) => {
+    const process = async (page: typeof contents.manuscripts[0], index: number) => {
       const sourceUrl = assertReturn(
-        page.meta.source_url,
+        page.drmImageUrl,
         `Could not get source URL for page ${index + 1}.`
       )
 
       const drmHash = assertReturn(
-        page.meta.drm_hash,
+        page.drmHash,
         `Could not get DRM hash for page ${index + 1}`
       )
 
@@ -92,13 +141,13 @@ export default class CommicWalkerHandler implements ResourceHandler {
         decodedBufferDataView.setUint8(i, originalBufferDataView.getUint8(i) ^ key[i % key.length])
       }
 
-      this.zipFile.file(`${(index + 1).toString().padStart(3, '0')}.jpg`, decodedBuffer)
+      this.zipFile.file(`${(index + 1).toString().padStart(3, '0')}.webp`, decodedBuffer)
 
       pagesComplete += 1
       this.states[this.currentStateIndex].percentage = pagesComplete / totalPages
     }
 
-    await Promise.all(frames.data.result.map((page, index) => process(page, index)))
+    await Promise.all(contents.manuscripts.map((page, index) => process(page, index)))
 
     return this.zipFile
   }
