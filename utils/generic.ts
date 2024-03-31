@@ -12,6 +12,7 @@ import YanMangaHandler from "~/src/resources/YanManga";
 import YauWntHandler from "~/src/resources/YauWnt";
 import ComiciHandler from "~/src/resources/Comici";
 import { assertReturn } from "~/src/utils/inlines";
+import GanmaHandler from "~/src/resources/Ganma";
 
 export async function downloadZipFile(zipFile: JSZip) {
   const zipBlob = await zipFile.generateAsync({ type: 'blob' })
@@ -73,6 +74,7 @@ hostMap.set('bigcomics.jp', ComiciHandler)
 hostMap.set('younganimal.com', ComiciHandler)
 hostMap.set('comic-earthstar.com', GigaViewHandler)
 hostMap.set('comics.manga-bang.com', ComiciHandler)
+hostMap.set('ganma.jp', GanmaHandler)
 
 export function mapUrlToHandler(url: string): typeof GigaViewHandler {
   const host = new URL(url).hostname
