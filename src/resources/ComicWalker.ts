@@ -7,7 +7,7 @@ import { ResourceHandler } from "../resources.type"
 const UrlIdRegex = /^https:\/\/comic-walker\.com\/detail\/(KC_.*)\/episodes\/(KC_.*)/
 
 export const ContentsPartialSchema = type({
-  manuscripts: array(object({
+  manuscripts: array(type({
     drmMode: enums(['xor']),
     drmHash: string(),
     drmImageUrl: string(),
