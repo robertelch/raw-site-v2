@@ -75,6 +75,7 @@ hostMap.set('younganimal.com', ComiciHandler)
 hostMap.set('comic-earthstar.com', GigaViewHandler)
 hostMap.set('comics.manga-bang.com', ComiciHandler)
 hostMap.set('ganma.jp', GanmaHandler)
+hostMap.set('carula.jp', ComiciHandler)
 
 export function mapUrlToHandler(url: string): typeof GigaViewHandler {
   const host = new URL(url).hostname

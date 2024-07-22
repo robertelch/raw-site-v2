@@ -54,6 +54,8 @@ export const ValidProxiedHosts = union([
     'yanmaga.jp',
     'api2-yanmaga.comici.jp',
     'viewer-yanmaga.comici.jp',
+    'carula.jp',
+    'viewer.carula.jp',
     'youngchampion.jp',
     'viewer.youngchampion.jp',
     'bigcomics.jp',
