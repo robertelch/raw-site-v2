@@ -78,6 +78,7 @@ hostMap.set('comics.manga-bang.com', ComiciHandler)
 hostMap.set('ganma.jp', GanmaHandler)
 hostMap.set('www.comic-valkyrie.com', SpeedBinbHandler)
 hostMap.set("comic-fuz.com", ComicFuzHandler)
+hostMap.set('carula.jp', ComiciHandler)
 
 export function mapUrlToHandler(url: string): typeof GigaViewHandler {
   const host = new URL(url).hostname
