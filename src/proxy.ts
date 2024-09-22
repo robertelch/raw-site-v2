@@ -65,6 +65,8 @@ export const ValidProxiedHosts = union([
     'comics.manga-bang.com',
     'comicsviewer.manga-bang.com',
     'ganma.jp',
+    'sbc.yanmaga.jp',
+    "www.comic-valkyrie.com"
   ]),
   pattern(string(), /[^\/]*\.cloudfront\.net/)
 ])
@@ -83,7 +85,8 @@ export function getProxiedUrl(url: string, headers: object = {}) {
     finalUrl.searchParams.append('headers[]', `${key}|${value}`)
   })
 
-  finalUrl.searchParams.append('headers[]', `cookie|${cookieString}`)
+  if (cookieString)
+    finalUrl.searchParams.append('headers[]', `cookie|${cookieString}`)
 
   return `${proxyUrl}/proxy?url=${encodeURIComponent(finalUrl.href)}`
 }
