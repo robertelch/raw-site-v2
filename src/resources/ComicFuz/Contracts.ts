@@ -1,4 +1,5 @@
-import { Message, Type, Field, OneOf, MapField } from "protobufjs/light"
+import pkg from 'protobufjs/light.js';
+const { Field, Type, Message } = pkg;
 
 @Type.d("DeviceInfo")
 class DeviceInfo extends Message<DeviceInfo> {
