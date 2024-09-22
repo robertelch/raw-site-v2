@@ -66,7 +66,10 @@ export const ValidProxiedHosts = union([
     'comicsviewer.manga-bang.com',
     'ganma.jp',
     'sbc.yanmaga.jp',
-    "www.comic-valkyrie.com"
+    "www.comic-valkyrie.com",
+    "comic-fuz.com",
+    "api.comic-fuz.com",
+    "img.comic-fuz.com"
   ]),
   pattern(string(), /[^\/]*\.cloudfront\.net/)
 ])
@@ -76,6 +79,13 @@ let cookieString = ''
 
 export async function getFromProxy(url: string, headers: object = {}) {
   return fetch(getProxiedUrl(url, headers))
+}
+
+export async function postFromProxy(url: string, headers: object, body: BodyInit | null | undefined) {
+  return fetch(getProxiedUrl(url, headers), {
+    method: "POST",
+    body: body
+  })
 }
 
 export function getProxiedUrl(url: string, headers: object = {}) {

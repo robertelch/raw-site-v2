@@ -10,6 +10,8 @@ export default defineEventHandler(async (event) => {
 
   try {
     const urlOnQuery = getQuery(event).url
+    const method = getMethod(event)
+    const body = method === 'POST' ? await readRawBody(event, false) : undefined
 
     if (typeof urlOnQuery !== 'string') {
       statusCode = 400
@@ -40,7 +42,9 @@ export default defineEventHandler(async (event) => {
 
     urlToProxy.searchParams.delete('headers[]')
 
-    const stream = await axios(urlToProxy.href, { responseType: 'stream', headers })
+    const stream = method === 'GET'
+      ? await axios(urlToProxy.href, { responseType: 'stream', headers })
+      : await axios.post(urlToProxy.href, new Uint8Array(Buffer.from(body!)), { responseType: 'stream', headers })
 
     return sendStream(event, stream.data)
   } catch (error) {

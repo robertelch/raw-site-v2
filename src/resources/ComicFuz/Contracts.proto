@@ -1,0 +1,189 @@
+package comicfuz;
+syntax = "proto3";
+
+message AuthorUser {
+  uint32 id = 1;
+  string name = 2;
+  string nameKana = 3;
+  string role = 4;
+}
+
+message DeviceInfo {
+  string secret = 1;
+  string appVer = 2;
+  int32 deviceType = 3;
+  string osVer = 4;
+  bool isTablet = 5;
+  int32 imageQuality = 6;
+}
+
+message UserPointFreeAndPaid {
+  uint32 free = 1;
+  uint32 paid = 2;
+}
+
+message UserPointPaidAndEvent {
+  uint32 event = 1;
+  uint32 paid = 2;
+}
+
+message WebMangaViewerRequest {
+  enum Position {
+    FIRST = 0;
+    LAST = 1;
+    DETAIL = 2;
+  }
+
+  message ChapterArgument {
+    uint32 mangaId = 1;
+    Position position = 2;
+  }
+
+  DeviceInfo deviceInfo = 1;
+  bool useTicket = 2;
+  UserPointPaidAndEvent consumePoint = 3;
+  uint32 chapterId = 4;
+  ChapterArgument chapterArgument = 5;
+}
+
+message ViewerPage {
+  message Image {
+    string imageUrl = 1;
+    string urlScheme = 2;
+    string iv = 3;
+    string encryptionKey = 4;
+    uint32 imageWidth = 5;
+    uint32 imageHeight = 6;
+    bool isExtraPage = 7;
+    uint32 extraId = 8;
+    uint32 extraIndex = 9;
+    uint32 extraSlotId = 10;
+  }
+
+  message WebView {
+    string url = 1;
+  }
+
+  message LastPage {
+
+  }
+
+  Image image = 1;
+  WebView webview = 2;
+  LastPage lastPage = 3;
+}
+
+message Sns {
+  string body = 1;
+  string url = 2;
+}
+
+message Chapter {
+  message PointConsumption {
+    enum Type {
+      ANY_ITEMS = 0;
+      EVENT_OR_PAID = 1;
+      PAID_ONLY = 2;
+    }
+
+    Type type = 1;
+    uint32 amount = 2;
+  }
+
+  uint32 chapterId = 1;
+  string chapterMainName = 2;
+  string chapterSubName = 3;
+  string thumbnailUrl = 4;
+  PointConsumption pointConsumption = 5;
+  uint32 numberOfComments = 6;
+  uint32 numberOfLikes = 7;
+  string updatedDate = 8;
+  bool isRead = 9;
+  string endOfRentalPeriod = 10;
+  string firstPageImageUrl = 11;
+  int32 badge = 12;
+  string releaseEndDate = 13;
+  string campaign = 14;
+}
+
+message ChapterGroup {
+  message BookIssueHeader {
+    string bookIssueId = 1;
+    string headerImageUrl = 2;
+    string text = 3;
+    string publishedDate = 4;
+    string campaign = 5;
+  }
+
+  BookIssueHeader bookIssueHeader = 1;
+  repeated Chapter chapters = 2;
+}
+
+message BookAuthor {
+  uint32 authorId = 1;
+  string authorName = 2;
+  string authorNameKana = 3;
+  string imageUrl = 4;
+  bool isYellEnabled = 5;
+  bool isYellBonusOffered = 6;
+}
+
+message Authorship {
+  BookAuthor author = 1;
+  string role = 2;
+}
+
+message Tag {
+  uint32 id = 1;
+  string name = 2;
+}
+
+message Manga {
+  uint32 mangaId = 1;
+  string mangaName = 2;
+  string mangaNameKana = 3;
+  string mainThumbnailUrl = 4;
+  string singleListThumbnailUrl = 5;
+  string shortDescription = 6;
+  string campaign = 7;
+  uint32 numberOfTotalChapterLikes = 8;
+  uint32 numberOfFavorites = 9;
+  int32 badge = 10;
+  bool isTicketAvailable = 11;
+  bool isChargeNeeded = 12;
+  string longDescription = 13;
+  string latestUpdatedDate = 14;
+  bool isFavorite = 15;
+  bool isOriginal = 16;
+  string chargeStatus = 17;
+}
+
+message WebMangaViewerResponse {
+  message ViewerData {
+    string viewerTitle = 1;
+    repeated ViewerPage pages = 2;
+    int32 scroll = 3;
+    bool isFirstPageBlank = 4;
+    int32 scrollOption = 5;
+  }
+
+  message ViewButton {
+    Chapter chapter = 1;
+    string buttonTitle = 2;
+  }
+
+  UserPointFreeAndPaid userPoint = 1;
+  ViewerData viewerData = 2;
+  bool isCommentEnabled = 3;
+  Sns sns = 4;
+  repeated Chapter chapters = 5;
+  repeated Authorship authorships = 6;
+  string nextUpdateInfo = 7;
+  bool isFavorite = 8;
+  repeated Tag tags = 9;
+  string rewardUrl = 10;
+  Manga manga = 11;
+  uint32 chapterId = 12;
+  ViewButton viewButton = 13;
+  bool hasAppLoggedin = 14;
+}
