@@ -71,7 +71,10 @@ export const ValidProxiedHosts = union([
     "www.comic-valkyrie.com",
     "comic-fuz.com",
     "api.comic-fuz.com",
-    "img.comic-fuz.com"
+    "img.comic-fuz.com",
+    "championcross.jp",
+    "cdn-public.comici.jp",
+    "viewer.championcross.jp",
   ]),
   pattern(string(), /[^\/]*\.cloudfront\.net/)
 ])
