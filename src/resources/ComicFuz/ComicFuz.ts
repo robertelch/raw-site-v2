@@ -94,7 +94,7 @@ export default class ComicFuzHandler implements ResourceHandler {
   }
 }
 
-const Q = (t: string) => {
+const unhex = (t: string) => {
   const e = t.match(/.{1,2}/g);
   return new Uint8Array(e!.map((function(t) {
     return parseInt(t, 16)
@@ -105,7 +105,7 @@ async function importKey(rawKey: string) {
   // Import the key using the Web Crypto API
   const cryptoKey = await crypto.subtle.importKey(
     'raw',           // Key format
-    Q(rawKey),       // Key data
+    unhex(rawKey),       // Key data
     { name: 'AES-CBC' }, // Algorithm
     false,           // Whether the key is extractable (cannot be exported)
     ['decrypt']      // Key usages
@@ -119,7 +119,7 @@ async function decryptData(encryptedBuffer: Buffer | ArrayBuffer, key: CryptoKey
   const decryptedBuffer = await crypto.subtle.decrypt(
     {
       name: 'AES-CBC',
-      iv: Q(iv),
+      iv: unhex(iv),
     },
     key,               // The CryptoKey object
     encryptedBuffer    // The data to decrypt

@@ -42,9 +42,11 @@ export default defineEventHandler(async (event) => {
 
     urlToProxy.searchParams.delete('headers[]')
 
+    console.log(urlToProxy.href, headers)
+
     const stream = method === 'GET'
-      ? await axios(urlToProxy.href, { responseType: 'stream', headers })
-      : await axios.post(urlToProxy.href, new Uint8Array(Buffer.from(body!)), { responseType: 'stream', headers })
+      ? await axios(decodeURIComponent(urlToProxy.href), { responseType: 'stream', headers })
+      : await axios.post(decodeURIComponent(urlToProxy.href), new Uint8Array(body!), { responseType: 'stream', headers })
 
     return sendStream(event, stream.data)
   } catch (error) {

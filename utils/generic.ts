@@ -14,6 +14,7 @@ import ComiciHandler from "~/src/resources/Comici";
 import { assertReturn } from "~/src/utils/inlines";
 import GanmaHandler from "~/src/resources/Ganma";
 import ComicFuzHandler from "~/src/resources/ComicFuz/ComicFuz";
+import FlowerComicsHandler from "~/src/resources/FlowerComics";
 
 export async function downloadZipFile(zipFile: JSZip) {
   const zipBlob = await zipFile.generateAsync({ type: 'blob' })
@@ -80,6 +81,7 @@ hostMap.set('www.comic-valkyrie.com', SpeedBinbHandler)
 hostMap.set("comic-fuz.com", ComicFuzHandler)
 hostMap.set('carula.jp', ComiciHandler)
 hostMap.set('championcross.jp', ComiciHandler)
+hostMap.set('flowercomics.jp', FlowerComicsHandler)
 
 export function mapUrlToHandler(url: string): typeof GigaViewHandler {
   const host = new URL(url).hostname
