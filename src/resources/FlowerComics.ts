@@ -122,7 +122,7 @@ export default class FlowerComicsHandler implements ResourceHandler {
         decryptedBuffer = await decryptData(buffer, key, page.crypto.iv)
       }
 
-      this.zipFile.file(`${(index + 1).toString().padStart(3, '0')}.jpg`, decryptedBuffer)
+      this.zipFile.file(`${(index + 1).toString().padStart(3, '0')}.webp`, decryptedBuffer)
 
       pagesComplete += 1
       this.states[this.currentStateIndex].percentage = pagesComplete / totalPages
