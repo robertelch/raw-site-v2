@@ -122,7 +122,7 @@ export default class FlowerComicsHandler implements ResourceHandler {
         decryptedBuffer = await decryptData(buffer, key, page.crypto.iv)
       }
 
-      this.zipFile.file(`${(index + 1).toString().padStart(3, '0')}.webp`, decryptedBuffer)
+      this.zipFile.file(`${(index + 1).toString().padStart(3, '0')}.jpg`, await reencodeImage(decryptedBuffer, 'image/jpeg'))
 
       pagesComplete += 1
       this.states[this.currentStateIndex].percentage = pagesComplete / totalPages
@@ -167,3 +167,56 @@ async function decryptData(encryptedBuffer: Buffer | ArrayBuffer, key: CryptoKey
 
   return decryptedBuffer; // Returns an ArrayBuffer containing the decrypted data
 }
+
+async function reencodeImage(buffer: ArrayBuffer, mimeType = 'image/png'): Promise<ArrayBuffer> {
+  if (!buffer) throw new Error('ArrayBuffer is required');
+
+  return new Promise((resolve, reject) => {
+    const blob = new Blob([buffer]);
+    const url = URL.createObjectURL(blob);
+
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('Failed to get canvas context'));
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0);
+
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          reject(new Error('Failed to extract image from canvas'));
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result
+          if (result instanceof ArrayBuffer) {
+            resolve(result);
+          } else {
+            reject(new Error('Failed to read blob as ArrayBuffer'));
+          }
+        };
+        reader.onerror = () => reject(new Error('Failed to read blob as ArrayBuffer'));
+        reader.readAsArrayBuffer(blob);
+      }, mimeType);
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Failed to load image'));
+    };
+
+    img.src = url;
+  });
+}
+
