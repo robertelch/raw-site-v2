@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
     if (typeof headersOnQuery === 'object' && typeof headersOnQuery?.length !== 'undefined') {
       headersOnQuery.map((header: string) => {
         header = decodeURIComponent(header)
-        headers[header.split('|')[0]] = header.split('|')[1]
+        headers[header.split('|')[0]] = header.split('|').slice(1).join("|")
       })
     }
 
