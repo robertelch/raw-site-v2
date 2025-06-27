@@ -1,4 +1,4 @@
-import { enums, pattern, regexp, string, union } from "superstruct"
+import { enums, pattern, string, union } from "superstruct"
 
 export const ValidProxiedHosts = union([
   enums([
@@ -77,6 +77,7 @@ export const ValidProxiedHosts = union([
     "viewer.championcross.jp",
     "flowercomics.jp",
     "img.flowercomics.jp",
+    "www.ganganonline.com",
   ]),
   pattern(string(), /[^\/]*\.cloudfront\.net/)
 ])

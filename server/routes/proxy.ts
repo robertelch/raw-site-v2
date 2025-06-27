@@ -45,8 +45,6 @@ export default defineEventHandler(async (event) => {
     const [first, second] = urlToProxy.href.split('?')
     const combined = second ? `${decodeURIComponent(first)}?${second}` : decodeURIComponent(first)
 
-    console.log(combined)
-
     const stream = method === 'GET'
       ? await axios(combined, { responseType: 'stream', headers })
       : await axios.post(combined, new Uint8Array(body!), { responseType: 'stream', headers })
