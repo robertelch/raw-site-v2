@@ -1,4 +1,4 @@
-## Alex's Raw Downloader
+## Raw Downloader
 
 This is a utility to download images from various comic-reading sites for local use.
 

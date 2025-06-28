@@ -37,7 +37,14 @@
                         .
                       </p>
                       <div class="mt-4">
-                        <input type="text" autocomplete="off" :value="proxyUrl" @input="e => proxyUrl = (e.target as HTMLInputElement).value" class="block bg-neutral-700 w-full rounded-md py-1.5 px-1.5 text-gray-100 shadow-sm placeholder:text-gray-400 transition-all focus:outline-purple-400 outline-none sm:text-sm sm:leading-6" placeholder="https://raws.alexeliot.dev" />
+                        <input
+                          type="text"
+                          autocomplete="off"
+                          :value="proxyUrl"
+                          @input="e => proxyUrl = (e.target as HTMLInputElement).value"
+                          class="block bg-neutral-700 w-full rounded-md py-1.5 px-1.5 text-gray-100 shadow-sm placeholder:text-gray-400 transition-all focus:outline-purple-400 outline-none sm:text-sm sm:leading-6"
+                          :placeholder="origin"
+                        />
                       </div>
                     </div>
                   </div>
@@ -86,6 +93,8 @@ interface Events {
   (e: 'update:modelValue', v: Props["modelValue"]): void
 }
 
+const origin = ref('/')
+
 const props = defineProps<Props>()
 const emit = defineEmits<Events>()
 
@@ -95,4 +104,8 @@ const open = ref(props.modelValue)
 watch(open, (newVal) => emit('update:modelValue', newVal))
 
 const proxyUrl = ref('')
+
+onMounted(() => {
+  origin.value = window.location.origin
+})
 </script>

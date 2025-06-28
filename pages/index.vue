@@ -98,7 +98,7 @@
   <div class="fixed w-full top-0 left-0 p-4 bg-gradient-to-b from-black/75 via-black/50 to-transparent">
     <div class="flex justify-between">
       <h1 class="my-auto text-xl sm:text-2xl text-white font-bold select-none">
-        Alex's Raw Downloader
+        Raw Downloader
       </h1>
       <div class="flex sm:space-x-2 text-white">
         <Button class="rounded-full sm:rounded-md" type="secondary" @buttonClick="showCookieModal = true">
