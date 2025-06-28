@@ -10,6 +10,8 @@ export default defineEventHandler(async (event) => {
 
   try {
     const urlOnQuery = getQuery(event).url
+    const method = getMethod(event)
+    const body = method === 'POST' ? await readRawBody(event, false) : undefined
 
     if (typeof urlOnQuery !== 'string') {
       statusCode = 400
@@ -34,14 +36,23 @@ export default defineEventHandler(async (event) => {
     if (typeof headersOnQuery === 'object' && typeof headersOnQuery?.length !== 'undefined') {
       headersOnQuery.map((header: string) => {
         header = decodeURIComponent(header)
-        headers[header.split('|')[0]] = header.split('|')[1]
+        headers[header.split('|')[0]] = header.split('|').slice(1).join("|")
       })
     }
 
     urlToProxy.searchParams.delete('headers[]')
 
-    const stream = await axios(urlToProxy.href, { responseType: 'stream', headers })
+    const [first, second] = urlToProxy.href.split('?')
+    const combined = second ? `${decodeURIComponent(first)}?${second}` : decodeURIComponent(first)
 
+    const stream = method === 'GET'
+      ? await axios(combined, { responseType: 'stream', headers })
+      : await axios.post(combined, new Uint8Array(body!), { responseType: 'stream', headers })
+
+    setHeaders(event, {
+      'Content-Type': stream.headers['content-type'],
+    })
+    
     return sendStream(event, stream.data)
   } catch (error) {
     throw createError({

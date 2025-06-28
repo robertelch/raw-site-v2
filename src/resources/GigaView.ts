@@ -1,6 +1,5 @@
 import JSZip from "jszip";
 import { ResourceHandler } from "../resources.type";
-import { assertReturn } from "../utils/inlines";
 import { getFromProxy } from "../proxy";
 import { array, assert, optional, string, type } from "superstruct";
 
@@ -34,12 +33,7 @@ export default class GigaViewHandler implements ResourceHandler {
   }
 
   async execute(): Promise<JSZip> {
-    const resp = await getFromProxy(`${this.url.href}.json`, {
-      'User-Agent': 'Mozilla/5.0 (Linux; Android 9; Pixel) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4026.0 Mobile Safari/537.36'
-    })
-    const body = await resp.json()
-
-    assert(body, ChapterDataSchema)
+    const body = await getEpisodeBody(this.url)
 
     const totalPages = body.readableProduct.pageStructure.pages.filter(page => page.type === 'main').length
     let pagesComplete = 0
@@ -61,4 +55,26 @@ export default class GigaViewHandler implements ResourceHandler {
 
     return this.zipFile
   }
+}
+
+async function getEpisodeBody(url: URL) {
+  const resp = await getFromProxy(`${url.href}.json`, {
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 9; Pixel) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4026.0 Mobile Safari/537.36'
+  })
+
+  if (resp.status !== 200) {
+    const resp2 = await getFromProxy(url.href, {
+      'User-Agent': 'Mozilla/5.0 (Linux; Android 9; Pixel) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4026.0 Mobile Safari/537.36'
+    })
+    const htmlString = await resp2.text()
+    const html = new DOMParser().parseFromString(htmlString, 'text/html')
+    const script = html.querySelector<HTMLScriptElement>('#episode-json')
+    const body = JSON.parse(script?.dataset.value ?? "")
+    assert(body, ChapterDataSchema)
+    return body
+  }
+
+  const body = await resp.json()
+  assert(body, ChapterDataSchema)
+  return body
 }

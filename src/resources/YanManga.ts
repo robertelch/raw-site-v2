@@ -30,6 +30,8 @@ export default class YanMangaHandler implements ResourceHandler {
   zipFile: JSZip;
 
   constructor(url: string) {
+    throw new Error('This handler not supported right now, it will be updated in the future.')
+
     this.url = new URL(url)
     this.id = assertReturn(
       this.url.pathname.split('/').at(-1),
@@ -52,12 +54,12 @@ export default class YanMangaHandler implements ResourceHandler {
     const parser = new DOMParser()
     const doc = parser.parseFromString(htmlText, 'text/html')
 
-    const script = doc.querySelector('head script')
-    console.log(script?.innerHTML)
+    const script = doc.querySelector('head script[src]')
+
     const dataset = doc.getElementById('comici-viewer')
 
     const apiKey = assertReturn(
-      script?.innerHTML.match(/"apiKey":"([a-z0-9A-Z_]*)"/)?.at(1),
+      script?.getAttribute('src')?.match(/apikey=(.*)/)?.at(1),
       'Could not find API key in script.'
     )
 
