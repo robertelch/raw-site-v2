@@ -78,9 +78,10 @@ export const ValidProxiedHosts = union([
     "flowercomics.jp",
     "img.flowercomics.jp",
     "www.ganganonline.com",
+    "comic-growl.com",
+    "cdn-img.comic-growl.com"
   ]),
   pattern(string(), /[^\/]*\.cloudfront\.net/)
-])
 
 let proxyUrl = ''
 let cookieString = ''
