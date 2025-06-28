@@ -1,42 +1,29 @@
-# Nuxt 3 Minimal Starter
+## Alex's Raw Downloader
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+This is a utility to download images from various comic-reading sites for local use.
 
-## Setup
+## Running
+1. Install NodeJS and Yarn (`npm i -g yarn`)
+2. `yarn install`
+3. `yarn dev`
 
-Make sure to install the dependencies:
+## Contributing
 
-```bash
-# yarn
-yarn install
+### New sources
 
-# npm
-npm install
+Many comic sites share the same readers, and the way they behave is mostly the same. If you want to add a source for which an already-existing resource handler can work:
 
-# pnpm
-pnpm install
-```
+1. Assign the specific resource handler in `./utils/generic.ts`
+2. Add the necessary hostnames in `./src/proxy.ts`
 
-## Development Server
+If the source doesn't have a handler yet:
 
-Start the development server on `http://localhost:3000`
+1. Write a handler in `./src/resources/` (you can take a look at other implementations to see how it's done)
+2. Follow the previous steps
 
-```bash
-npm run dev
-```
+### New backgrounds
 
-## Production
+To add a new background:
 
-Build the application for production:
-
-```bash
-npm run build
-```
-
-Locally preview production build:
-
-```bash
-npm run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+1. Add the image in `./public/bg/`
+2. Add its data in `./server/routes/background.ts`
