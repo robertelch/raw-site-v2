@@ -27,7 +27,7 @@ export default class SpeedBinbHandler implements ResourceHandler {
   zipFile: JSZip;
 
   constructor(url: string) {
-    this.url = new URL(url.replace('/index.html', ''))
+    this.url = new URL(this.withoutTrailingSlash(url.replace('/index.html', '')))
 
     this.states = [
       { name: 'Getting API data.', percentage: 0 },
@@ -130,5 +130,9 @@ export default class SpeedBinbHandler implements ResourceHandler {
     });
 
     return coords
+  }
+
+  protected withoutTrailingSlash(url: string) {
+    return url.endsWith("/") ? url.slice(0, -1) : url
   }
 }
